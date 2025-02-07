@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ludo Game</title>
+    <style>
+        .board {
+            width: 600px;
+            height: 600px;
+            background-color: #fff;
+            border: 2px solid #000;
+            position: relative;
+            margin: 20px auto;
+        }
+
+        .cell {
+            width: 12%;
+            height: 12%;
+            border: 1px solid #000;
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .token {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .red { background-color: #ff0000; }
+        .green { background-color: #00ff00; }
+        .yellow { background-color: #ffff00; }
+        .blue { background-color: #0000ff; }
+
+        .dice-container {
+            text-align: center;
+            margin: 20px;
+        }
+
+        #dice {
+            width: 100px;
+            height: 100px;
+            border: 2px solid #000;
+            display: inline-block;
+            text-align: center;
+            line-height: 100px;
+            font-size: 40px;
+        }
+
+        .home {
+            width: 25%;
+            height: 25%;
+            position: absolute;
+        }
+
+        .path {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="dice-container">
+        <div id="dice">0</div>
+        <button onclick="rollDice()">Roll Dice</button>
+    </div>
+    <div class="board">
+        <!-- Tokens will be dynamically added -->
+    </div>
+
+    <script>
+        class LudoGame {
+            constructor() {
+                this.players = ['red', 'green', 'yellow', 'blue'];
+                this.currentPlayer = 0;
+                this.diceValue = 0;
+                this.tokens = [];
+                this.initBoard();
+            }
+
+            initBoard() {
+                const board = document.querySelector('.board');
+                
+                // Create tokens for each player
+                this.players.forEach((color, playerIndex) => {
+                    for (let i = 0; i < 4; i++) {
+                        const token = document.createElement('div');
+                        token.className = `token ${color}`;
+                        token.dataset.player = playerIndex;
+                        token.dataset.position = -1;
+                        token.dataset.state = 'home';
+                        this.tokens.push(token);
+                        board.appendChild(token);
+                    }
+                });
+
+                this.positionTokens();
+            }
+
+            positionTokens() {
+                this.tokens.forEach((token, index) => {
+                    const playerIndex = parseInt(token.dataset.player);
+                    const tokenIndex = index % 4;
+                    const homePositions = [
+                        { left: '5%', top: '5%' },
+                        { left: '70%', top: '5%' },
+                        { left: '70%', top: '70%' },
+                        { left: '5%', top: '70%' }
+                    ];
+                    
+                    if (token.dataset.state === 'home') {
+                        const pos = homePositions[playerIndex];
+                        token.style.left = pos.left;
+                        token.style.top = pos.top;
+                    }
+                });
+            }
+
+            moveToken(token, steps) {
+                const currentPosition = parseInt(token.dataset.position);
+                const newPosition = currentPosition + steps;
+                
+                if (newPosition >= 0 && newPosition <= 56) {
+                    token.dataset.position = newPosition;
+                    this.updateTokenPosition(token);
+                }
+            }
+
+            updateTokenPosition(token) {
+                // Implement path movement logic here
+                // This is a simplified version - you'll need to expand this
+                const pathPositions = [
+                    { left: '50%', top: '93%' },
+                    // Add all positions in the ludo path
+                ];
+                
+                if (token.dataset.position >= 0) {
+                    const pos = pathPositions[token.dataset.position];
+                    token.style.left = pos.left;
+                    token.style.top = pos.top;
+                }
+            }
+        }
+
+        const game = new LudoGame();
+
+        function rollDice() {
+            const dice = document.getElementById('dice');
+            const value = Math.floor(Math.random() * 6) + 1;
+            dice.textContent = value;
+            
+            // Implement move logic based on dice value
+            // For now, just move the first token of current player
+            const currentPlayerTokens = game.tokens.filter(
+                t => parseInt(t.dataset.player) === game.currentPlayer
+            );
+            
+            if (currentPlayerTokens.length > 0) {
+                game.moveToken(currentPlayerTokens[0], value);
+            }
+            
+            game.currentPlayer = (game.currentPlayer + 1) % 4;
+        }
+    </script>
+</body>
+</html>
